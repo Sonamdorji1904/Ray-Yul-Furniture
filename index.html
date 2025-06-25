@@ -129,6 +129,8 @@
                         class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Login</button>
                     <button type="button" id="toggle-auth" class="text-indigo-600 hover:underline">Sign Up</button>
                 </div>
+                <button type="button" id="forgot-password"
+                    class="text-sm text-indigo-600 hover:underline w-full text-left mt-2">Forgot Password?</button>
             </form>
             <button id="close-auth" class="mt-4 text-gray-500 hover:underline w-full">Close</button>
             <div id="auth-error" class="text-red-500 mt-2"></div>
@@ -345,7 +347,9 @@
             loginBtn.onclick = (e) => {
                 e.preventDefault();
                 if (user) {
-                    firebase.auth().signOut();
+                    firebase.auth().signOut().then(() => {
+                        window.location.href = "index.html";
+                    });
                 } else {
                     authModal.classList.remove('hidden');
                     isLogin = true;
@@ -383,6 +387,26 @@
                 }
             } catch (err) {
                 authError.textContent = err.message;
+            }
+        };
+
+        const forgotPasswordBtn = document.getElementById('forgot-password');
+
+        forgotPasswordBtn.onclick = async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            if (!email) {
+                authError.textContent = "Please enter your email above to reset password.";
+                return;
+            }
+            try {
+                await firebase.auth().sendPasswordResetEmail(email);
+                authError.textContent = "Password reset email sent! Please check your inbox.";
+                authError.classList.remove("text-red-500");
+                authError.classList.add("text-green-600");
+            } catch (err) {
+                authError.textContent = err.message;
+                authError.classList.remove("text-green-600");
+                authError.classList.add("text-red-500");
             }
         };
 

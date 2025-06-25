@@ -48,6 +48,10 @@
     </header>
 
     <main class="flex-1">
+        <!-- Info Banner for Users -->
+        <div id="booking-info-banner" class="container mx-auto px-4 py-4 mb-4 bg-indigo-50 border-l-4 border-indigo-400 text-indigo-800 rounded">
+            <span class="font-semibold">Note:</span> Please log in to view your orders and pre-orders. Once logged in, all your bookings will appear below.
+        </div>
         <!-- User Bookings Section -->
         <section id="user-bookings" class="container mx-auto px-4 py-10 hidden">
             <h2 class="text-2xl font-bold mb-6 text-center">My Orders & Pre-orders</h2>
@@ -67,6 +71,26 @@
             &copy; 2025 Ray-Yul Furniture. All rights reserved.
         </div>
     </footer>
+
+    <!-- Login/Signup Modal -->
+    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-4" id="auth-title">Login</h3>
+            <form id="auth-form" class="space-y-4">
+                <input type="email" id="auth-email" placeholder="Email" class="w-full border rounded px-3 py-2" required>
+                <input type="password" id="auth-password" placeholder="Password" class="w-full border rounded px-3 py-2" required>
+                <div class="flex justify-between">
+                    <button type="submit" id="auth-submit"
+                        class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Login</button>
+                    <button type="button" id="toggle-auth" class="text-indigo-600 hover:underline">Sign Up</button>
+                </div>
+                <button type="button" id="forgot-password"
+                    class="text-sm text-indigo-600 hover:underline w-full text-left mt-2">Forgot Password?</button>
+            </form>
+            <button id="close-auth" class="mt-4 text-gray-500 hover:underline w-full">Close</button>
+            <div id="auth-error" class="text-red-500 mt-2"></div>
+        </div>
+    </div>
 
     <script>
         let furnitureMap = {};
@@ -153,33 +177,84 @@
 
         // Simple login/logout logic for the button
         const loginBtn = document.getElementById('login-btn');
+        const authModal = document.getElementById('auth-modal');
+        const closeAuth = document.getElementById('close-auth');
+        const toggleAuth = document.getElementById('toggle-auth');
+        const authTitle = document.getElementById('auth-title');
+        const authForm = document.getElementById('auth-form');
+        const authError = document.getElementById('auth-error');
+        const authSubmit = document.getElementById('auth-submit');
+        const forgotPasswordBtn = document.getElementById('forgot-password');
+
+        let isLogin = true;
+
         firebase.auth().onAuthStateChanged(user => {
-            const isAdmin = user && adminEmails.includes(user.email);
             if (user) {
                 loginBtn.textContent = "Logout";
                 loginBtn.onclick = (e) => {
                     e.preventDefault();
-                    firebase.auth().signOut();
+                    firebase.auth().signOut().then(() => {
+                        window.location.href = "index.html";
+                    });
                 };
-                if (isAdmin) {
-                    document.getElementById('admin-bookings').classList.remove('hidden');
-                    document.getElementById('user-bookings').classList.add('hidden');
-                    fetchAllBookings();
-                } else {
-                    document.getElementById('admin-bookings').classList.add('hidden');
-                    document.getElementById('user-bookings').classList.remove('hidden');
-                    fetchUserBookings(user.uid);
-                }
+                authModal.classList.add('hidden');
             } else {
                 loginBtn.textContent = "Login";
                 loginBtn.onclick = (e) => {
                     e.preventDefault();
-                    alert("Please login to view your bookings.");
+                    authModal.classList.remove('hidden');
+                    isLogin = true;
+                    authTitle.textContent = "Login";
+                    toggleAuth.textContent = "Sign Up";
+                    authSubmit.textContent = "Login";
+                    authError.textContent = "";
                 };
-                document.getElementById('admin-bookings').classList.add('hidden');
-                document.getElementById('user-bookings').classList.add('hidden');
             }
         });
+
+        closeAuth.onclick = () => authModal.classList.add('hidden');
+
+        toggleAuth.onclick = () => {
+            isLogin = !isLogin;
+            authTitle.textContent = isLogin ? "Login" : "Sign Up";
+            toggleAuth.textContent = isLogin ? "Sign Up" : "Login";
+            authSubmit.textContent = isLogin ? "Login" : "Sign Up";
+            authError.textContent = "";
+        };
+
+        authForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            authError.textContent = "";
+            try {
+                if (isLogin) {
+                    await firebase.auth().signInWithEmailAndPassword(email, password);
+                } else {
+                    await firebase.auth().createUserWithEmailAndPassword(email, password);
+                }
+            } catch (err) {
+                authError.textContent = err.message;
+            }
+        };
+
+        forgotPasswordBtn.onclick = async () => {
+            const email = document.getElementById('auth-email').value.trim();
+            if (!email) {
+                authError.textContent = "Please enter your email above to reset password.";
+                return;
+            }
+            try {
+                await firebase.auth().sendPasswordResetEmail(email);
+                authError.textContent = "Password reset email sent! Please check your inbox.";
+                authError.classList.remove("text-red-500");
+                authError.classList.add("text-green-600");
+            } catch (err) {
+                authError.textContent = err.message;
+                authError.classList.remove("text-green-600");
+                authError.classList.add("text-red-500");
+            }
+        };
 
         // Make admin actions global for inline onclick
         window.approveBooking = async function (id) {
