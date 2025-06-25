@@ -26,6 +26,22 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
         const storage = firebase.storage();
+
+        // Make admin actions global for inline onclick
+        window.approveBooking = async function (id) {
+            await db.collection('bookings').doc(id).update({ status: "approved" });
+            fetchAllBookings();
+        };
+        window.cancelBooking = async function (id) {
+            await db.collection('bookings').doc(id).update({ status: "cancelled" });
+            fetchAllBookings();
+        };
+        window.removeBooking = async function (id) {
+            if (confirm("Remove this booking?")) {
+                await db.collection('bookings').doc(id).delete();
+                fetchAllBookings();
+            }
+        };
     </script>
 </head>
 
@@ -214,6 +230,10 @@
         };
 
         firebase.auth().onAuthStateChanged(user => {
+            const infoBanner = document.getElementById('booking-info-banner');
+            const userBookingsSection = document.getElementById('user-bookings');
+            const adminBookingsSection = document.getElementById('admin-bookings');
+
             if (user) {
                 loginBtn.textContent = "Logout";
                 loginBtn.onclick = (e) => {
@@ -223,6 +243,18 @@
                     });
                 };
                 authModal.classList.add('hidden');
+                infoBanner.classList.add('hidden'); // Hide info banner after login
+
+                // Show bookings UI
+                if (adminEmails.includes(user.email)) {
+                    adminBookingsSection.classList.remove('hidden');
+                    userBookingsSection.classList.add('hidden');
+                    fetchAllBookings();
+                } else {
+                    userBookingsSection.classList.remove('hidden');
+                    adminBookingsSection.classList.add('hidden');
+                    fetchUserBookings(user.uid);
+                }
             } else {
                 loginBtn.textContent = "Login";
                 loginBtn.onclick = (e) => {
@@ -233,7 +265,11 @@
                     toggleAuth.textContent = "Sign Up";
                     authSubmit.textContent = "Login";
                     authError.textContent = "";
+                    forgotPasswordBtn.classList.remove('hidden');
                 };
+                infoBanner.classList.remove('hidden'); // Show info banner before login
+                userBookingsSection.classList.add('hidden');
+                adminBookingsSection.classList.add('hidden');
             }
         });
 
