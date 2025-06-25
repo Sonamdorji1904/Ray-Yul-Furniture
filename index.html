@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Ray-Yul Furniture Showroom</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBO7elH2BDo48m7wu1CCEh-ZIT-5i1EeUc",
+            authDomain: "ray-yul-furniture.firebaseapp.com",
+            projectId: "ray-yul-furniture",
+            storageBucket: "ray-yul-furniture.appspot.com",
+            messagingSenderId: "1009800722761",
+            appId: "1:1009800722761:web:258966e71e86dd9db40298",
+            measurementId: "G-F93Z8VX82E"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <nav class="container mx-auto flex items-center justify-between py-4 px-4">
+            <div class="flex items-center space-x-3">
+                <img src="logo.png" alt="Ray-Yul Logo" class="h-10 w-10 object-contain">
+                <!-- Replace 'logo.png' with your logo file path -->
+                <h1 class="text-2xl font-bold text-indigo-700">Ray-Yul Furniture</h1>
+            </div>
+            <ul class="flex space-x-6">
+                <li><a href="index.html" class="hover:text-indigo-600">Home</a></li>
+                <li><a href="about.html" class="hover:text-indigo-600">About Us</a></li>
+                <li><a href="bookings.html" class="hover:text-indigo-600">Bookings</a></li>
+                <li><a href="#" id="login-btn"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <!-- Hero Section -->
+    <section class="bg-indigo-100 py-12">
+        <div class="container mx-auto px-4 text-center">
+            <h2 class="text-3xl md:text-4xl font-extrabold mb-4">Discover Quality Furniture for Your Home</h2>
+            <p class="mb-6 text-lg text-gray-700">Browse our exclusive collection and book your favorite pieces today!
+            </p>
+            <a href="#catalog"
+                class="inline-block bg-indigo-600 text-white px-6 py-3 rounded shadow hover:bg-indigo-700 transition font-semibold">View
+                Catalog</a>
+        </div>
+    </section>
+
+    <!-- Furniture Catalog Placeholder -->
+    <main>
+        <section id="catalog" class="container mx-auto px-4 py-10">
+            <h2 class="text-2xl font-bold mb-6 text-center">Furniture Catalog</h2>
+            <!-- Admin Add Furniture Button -->
+            <div id="admin-controls" class="mb-6 text-right hidden">
+                <button id="add-furniture-btn"
+                    class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700 transition">
+                    + Add Furniture
+                </button>
+            </div>
+            <!-- Insert Furniture Form (Admin) -->
+            <div id="insert-furniture" class="mb-6">
+                <form id="insert-furniture-form" class="space-x-2">
+                    <input type="text" id="insert-name" placeholder="Name" required class="border rounded px-2 py-1">
+                    <input type="number" id="insert-price" placeholder="Price" required
+                        class="border rounded px-2 py-1">
+                    <input type="number" id="insert-stock" placeholder="Stock" required
+                        class="border rounded px-2 py-1">
+                    <input type="text" id="insert-image" placeholder="Image filename (e.g., chair.jpg)" required
+                        class="border rounded px-2 py-1">
+                    <button type="submit" class="bg-green-600 text-white px-4 py-1 rounded">Insert</button>
+                </form>
+            </div>
+            <!-- Furniture List -->
+            <div id="furniture-list" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-8">
+                <!-- Furniture items will be dynamically loaded here -->
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Furniture Modal -->
+    <div id="add-furniture-modal"
+        class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md">
+            <h3 class="text-xl font-bold mb-4">Add New Furniture</h3>
+            <form id="furniture-form" class="space-y-4">
+                <input type="text" id="furniture-name" placeholder="Name" class="w-full border rounded px-3 py-2"
+                    required>
+                <input type="number" id="furniture-price" placeholder="Price" class="w-full border rounded px-3 py-2"
+                    required>
+                <input type="number" id="furniture-stock" placeholder="Stock" class="w-full border rounded px-3 py-2"
+                    required>
+                <input type="file" id="furniture-image" accept="image/*" class="w-full">
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancel-modal"
+                        class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Add</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Login/Signup Modal -->
+    <div id="auth-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-4" id="auth-title">Login</h3>
+            <form id="auth-form" class="space-y-4">
+                <input type="email" id="auth-email" placeholder="Email" class="w-full border rounded px-3 py-2"
+                    required>
+                <input type="password" id="auth-password" placeholder="Password" class="w-full border rounded px-3 py-2"
+                    required>
+                <div class="flex justify-between">
+                    <button type="submit" id="auth-submit"
+                        class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Login</button>
+                    <button type="button" id="toggle-auth" class="text-indigo-600 hover:underline">Sign Up</button>
+                </div>
+            </form>
+            <button id="close-auth" class="mt-4 text-gray-500 hover:underline w-full">Close</button>
+            <div id="auth-error" class="text-red-500 mt-2"></div>
+        </div>
+    </div>
+
+    <!-- Edit Modal -->
+    <div id="edit-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-4">Edit Furniture</h3>
+            <form id="edit-form" class="space-y-4">
+                <input type="number" id="edit-price" placeholder="Price" class="w-full border rounded px-3 py-2"
+                    required>
+                <input type="number" id="edit-stock" placeholder="Stock" class="w-full border rounded px-3 py-2"
+                    required>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancel-edit"
+                        class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Save</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Order/Preorder Modal -->
+    <div id="order-modal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg p-6 w-full max-w-sm">
+            <h3 class="text-xl font-bold mb-4" id="order-modal-title">Order</h3>
+            <form id="order-form" class="space-y-4">
+                <input type="text" id="order-fullname" placeholder="Full Name" class="w-full border rounded px-3 py-2"
+                    required>
+                <input type="text" id="order-mobile" placeholder="Mobile Number" class="w-full border rounded px-3 py-2"
+                    required>
+
+                <label for="order-address" class="block text-sm text-gray-600">Delivery Location</label>
+                <select id="order-address" class="w-full border rounded px-3 py-2" required
+                    onchange="toggleOtherLocation(this)">
+                    <option value="" disabled selected>Select free delivery location</option>
+                    <option value="Thimphu">Chukha</option>
+                    <option value="Thimphu">Gelephu (Sarpang)</option>
+                    <option value="Thimphu">Haa</option>
+                    <option value="Thimphu">Lhamoizingkha (Dagana)</option>
+                    <option value="Wangdue">Mongar</option>
+                    <option value="Paro">Paro</option>
+                    <option value="Thimphu">Pema Gatshel</option>
+                    <option value="Punakha">Punakha</option>
+                    <option value="Thimphu">S/Jongkhar</option>
+                    <option value="Thimphu">Samtse</option>
+                    <option value="Thimphu">Tashigang</option>
+                    <option value="Thimphu">Thimphu</option>
+                    <option value="Wangdue">Wangdue Phodrang</option>
+                    <option value="other">Other (Specify below)</option>
+                </select>
+                <input type="text" id="order-other-location" placeholder="If not listed, specify your location"
+                    class="w-full border rounded px-3 py-2 mt-2 hidden">
+
+                <input type="number" id="order-quantity" placeholder="Quantity" min="1"
+                    class="w-full border rounded px-3 py-2" required>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="cancel-order"
+                        class="px-4 py-2 rounded bg-gray-300 hover:bg-gray-400">Cancel</button>
+                    <button type="submit"
+                        class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Submit</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const adminEmails = ["ugyentime88@gmail.com"]; // Replace with your admin email(s)
+
+        // Fetch and display furniture
+        async function fetchFurniture(isAdmin) {
+            const snapshot = await db.collection('furnitures').get();
+            const furnitures = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderFurniture(furnitures, isAdmin);
+        }
+
+        // Example: Render furniture cards with edit options for admin
+        function renderFurniture(furnitures, isAdmin) {
+            const list = document.getElementById('furniture-list');
+            list.innerHTML = '';
+            furnitures.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white rounded shadow p-4 flex flex-col items-center";
+                card.innerHTML = `
+              <div class="w-full h-48 bg-gray-200 rounded mb-4 flex items-center justify-center overflow-hidden">
+                <img src="images/${item.image}" alt="${item.name}" class="object-cover w-full h-full">
+              </div>
+              <h3 class="font-semibold text-lg mb-2">${item.name}</h3>
+              <span class="font-bold text-indigo-700 mb-2">Nu.${item.price}</span>
+              <span class="mb-2 text-sm text-gray-500">Stock: ${item.stock}</span>
+              ${isAdmin
+                        ? `
+      <button onclick="showEditModal('${item.id}', ${item.price}, ${item.stock})" class="bg-yellow-500 text-white px-4 py-2 rounded hover:bg-yellow-600 transition mt-2">Edit</button>
+      <button onclick="removeFurniture('${item.id}')" class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700 transition mt-2 ml-2">Remove</button>
+    `
+                        : `
+      <button onclick="openOrderModal('${item.id}', '${item.name}', ${item.stock})"
+        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition mt-2">
+        ${item.stock > 0 ? "Book Now" : "Pre-order"}
+      </button>
+    `
+                    }
+            `;
+                list.appendChild(card);
+            });
+        }
+
+        // Modal logic
+        const modal = document.getElementById('add-furniture-modal');
+        document.getElementById('add-furniture-btn').onclick = () => modal.classList.remove('hidden');
+        document.getElementById('cancel-modal').onclick = () => modal.classList.add('hidden');
+
+        // Handle form submit
+        document.getElementById('furniture-form').onsubmit = async function (e) {
+            e.preventDefault();
+            const name = document.getElementById('furniture-name').value;
+            const price = document.getElementById('furniture-price').value;
+            const stock = document.getElementById('furniture-stock').value;
+            const imageInput = document.getElementById('furniture-image');
+            let imageURL = '';
+
+            if (imageInput.files && imageInput.files[0]) {
+                // 1. Upload image to Firebase Storage
+                const file = imageInput.files[0];
+                const storageRef = storage.ref().child('furnitures/' + Date.now() + '_' + file.name);
+                await storageRef.put(file);
+                imageURL = await storageRef.getDownloadURL();
+            }
+
+            // 2. Save furniture data to Firestore
+            await db.collection('furnitures').add({
+                name,
+                price,
+                stock,
+                image: imageURL
+            });
+
+            // 3. Refresh catalog
+            fetchFurniture();
+            modal.classList.add('hidden');
+            e.target.reset();
+        };
+
+        document.getElementById('insert-furniture-form').onsubmit = async function (e) {
+            e.preventDefault();
+            const name = document.getElementById('insert-name').value;
+            const price = Number(document.getElementById('insert-price').value);
+            const stock = Number(document.getElementById('insert-stock').value);
+            const image = document.getElementById('insert-image').value;
+
+            await db.collection('furnitures').add({ name, price, stock, image });
+            alert("Furniture inserted!");
+            this.reset();
+            fetchFurniture(); // Refresh catalog if you have this function
+        };
+
+        let currentEditId = null;
+
+        function showEditModal(id, price, stock) {
+            currentEditId = id;
+            document.getElementById('edit-price').value = price;
+            document.getElementById('edit-stock').value = stock;
+            document.getElementById('edit-modal').classList.remove('hidden');
+        }
+
+        document.getElementById('cancel-edit').onclick = () => {
+            document.getElementById('edit-modal').classList.add('hidden');
+        };
+
+        document.getElementById('edit-form').onsubmit = async function (e) {
+            e.preventDefault();
+            const newPrice = document.getElementById('edit-price').value;
+            const newStock = document.getElementById('edit-stock').value;
+            if (!currentEditId) return;
+
+            // Update Firestore
+            await db.collection('furnitures').doc(currentEditId).update({
+                price: Number(newPrice),
+                stock: Number(newStock)
+            });
+
+            document.getElementById('edit-modal').classList.add('hidden');
+            fetchFurniture(); // Refresh the catalog
+        };
+
+        // Login/Signup logic
+        const loginBtn = document.getElementById('login-btn');
+        const authModal = document.getElementById('auth-modal');
+        const closeAuth = document.getElementById('close-auth');
+        const toggleAuth = document.getElementById('toggle-auth');
+        const authTitle = document.getElementById('auth-title');
+        const authForm = document.getElementById('auth-form');
+        const authError = document.getElementById('auth-error');
+        const authSubmit = document.getElementById('auth-submit');
+
+        let isLogin = true;
+
+        // Auth state listener
+        firebase.auth().onAuthStateChanged(user => {
+            let isAdmin = false;
+            if (user && adminEmails.includes(user.email)) {
+                isAdmin = true;
+                document.getElementById('admin-controls').classList.remove('hidden');
+                document.getElementById('insert-furniture').classList.remove('hidden');
+            } else {
+                document.getElementById('admin-controls').classList.add('hidden');
+                document.getElementById('insert-furniture').classList.add('hidden');
+            }
+
+            loginBtn.textContent = user ? "Logout" : "Login";
+            loginBtn.onclick = (e) => {
+                e.preventDefault();
+                if (user) {
+                    firebase.auth().signOut();
+                } else {
+                    authModal.classList.remove('hidden');
+                    isLogin = true;
+                    authTitle.textContent = "Login";
+                    toggleAuth.textContent = "Sign Up";
+                    authSubmit.textContent = "Login";
+                    authError.textContent = "";
+                }
+            };
+
+            authModal.classList.add('hidden');
+            fetchFurniture(isAdmin);
+        });
+
+        closeAuth.onclick = () => authModal.classList.add('hidden');
+
+        toggleAuth.onclick = () => {
+            isLogin = !isLogin;
+            authTitle.textContent = isLogin ? "Login" : "Sign Up";
+            toggleAuth.textContent = isLogin ? "Sign Up" : "Login";
+            authSubmit.textContent = isLogin ? "Login" : "Sign Up";
+            authError.textContent = "";
+        };
+
+        authForm.onsubmit = async (e) => {
+            e.preventDefault();
+            const email = document.getElementById('auth-email').value;
+            const password = document.getElementById('auth-password').value;
+            authError.textContent = "";
+            try {
+                if (isLogin) {
+                    await firebase.auth().signInWithEmailAndPassword(email, password);
+                } else {
+                    await firebase.auth().createUserWithEmailAndPassword(email, password);
+                }
+            } catch (err) {
+                authError.textContent = err.message;
+            }
+        };
+
+        async function removeFurniture(id) {
+            if (confirm("Are you sure you want to remove this furniture?")) {
+                await db.collection('furnitures').doc(id).delete();
+                fetchFurniture();
+            }
+        }
+        window.removeFurniture = removeFurniture;
+        window.showEditModal = showEditModal;
+
+        // Order modal logic
+        const orderModal = document.getElementById('order-modal');
+        const orderForm = document.getElementById('order-form');
+
+        let currentOrderFurnitureId = null;
+        let currentOrderFurnitureName = null;
+        let currentOrderStock = null;
+
+        function openOrderModal(furnitureId, furnitureName, stock) {
+            currentOrderFurnitureId = furnitureId;
+            currentOrderFurnitureName = furnitureName;
+            currentOrderStock = stock;
+            document.getElementById('order-modal-title').textContent = stock > 0 ? "Book Order" : "Pre-order";
+            document.getElementById('order-modal').classList.remove('hidden');
+            document.getElementById('order-quantity').value = 1;
+        }
+        window.openOrderModal = openOrderModal;
+
+        document.getElementById('cancel-order').onclick = () => {
+            document.getElementById('order-modal').classList.add('hidden');
+        };
+
+        document.getElementById('order-form').onsubmit = async function (e) {
+            e.preventDefault();
+            const fullname = document.getElementById('order-fullname').value;
+            const mobile = document.getElementById('order-mobile').value;
+            let address = document.getElementById('order-address').value;
+            if (address === 'other') {
+                address = document.getElementById('order-other-location').value.trim();
+                // Check for uncertain delivery locations
+                const uncertainPlaces = ["gasa", "tsirang", "tashiyangtse", "bumthang", "trongsa"];
+                if (uncertainPlaces.includes(address.toLowerCase())) {
+                    alert("Delivery is uncertain for " + address.charAt(0).toUpperCase() + address.slice(1) + ".");
+                }
+            }
+            const quantity = Number(document.getElementById('order-quantity').value);
+            const user = firebase.auth().currentUser;
+            if (!user) {
+                alert("Please login to place an order.");
+                return;
+            }
+            await db.collection('bookings').add({
+                userId: user.uid,
+                furnitureId: currentOrderFurnitureId,
+                fullname,
+                mobile,
+                address,
+                quantity,
+                status: "pending",
+                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+            });
+            alert("Your order has been placed!");
+            document.getElementById('order-modal').classList.add('hidden');
+        };
+
+        function toggleOtherLocation(select) {
+            const otherInput = document.getElementById('order-other-location');
+            if (select.value === 'other') {
+                otherInput.classList.remove('hidden');
+                otherInput.required = true;
+            } else {
+                otherInput.classList.add('hidden');
+                otherInput.required = false;
+            }
+        }
+    </script>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-auto">
+        <div class="container mx-auto px-4 py-6 text-center text-gray-500">
+            &copy; 2025 Ray-Yul Furniture. All rights reserved.
+        </div>
+    </footer>
+</body>
+
+</html>

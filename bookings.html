@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ray-Yul Furniture Showroom</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Firebase scripts -->
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-storage-compat.js"></script>
+    <script>
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+            apiKey: "AIzaSyBO7elH2BDo48m7wu1CCEh-ZIT-5i1EeUc",
+            authDomain: "ray-yul-furniture.firebaseapp.com",
+            projectId: "ray-yul-furniture",
+            storageBucket: "ray-yul-furniture.appspot.com",
+            messagingSenderId: "1009800722761",
+            appId: "1:1009800722761:web:258966e71e86dd9db40298",
+            measurementId: "G-F93Z8VX82E"
+        };
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const storage = firebase.storage();
+    </script>
+</head>
+
+<body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="bg-white shadow">
+        <nav class="container mx-auto flex items-center justify-between py-4 px-4">
+            <div class="flex items-center space-x-3">
+                <img src="logo.png" alt="Ray-Yul Logo" class="h-10 w-10 object-contain">
+                <h1 class="text-2xl font-bold text-indigo-700">Ray-Yul Furniture</h1>
+            </div>
+            <ul class="flex space-x-6">
+                <li><a href="index.html" class="hover:text-indigo-600">Home</a></li>
+                <li><a href="about.html" class="hover:text-indigo-600">About Us</a></li>
+                <li><a href="bookings.html" class="hover:text-indigo-600">Bookings</a></li>
+                <li><a href="#" id="login-btn"
+                        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Login</a></li>
+            </ul>
+        </nav>
+    </header>
+
+    <main class="flex-1">
+        <!-- User Bookings Section -->
+        <section id="user-bookings" class="container mx-auto px-4 py-10 hidden">
+            <h2 class="text-2xl font-bold mb-6 text-center">My Orders & Pre-orders</h2>
+            <div id="user-bookings-list" class="space-y-4"></div>
+        </section>
+
+        <!-- Admin Bookings Section (hidden for non-admins) -->
+        <section id="admin-bookings" class="container mx-auto px-4 py-10 hidden">
+            <h2 class="text-2xl font-bold mb-6 text-center">All Bookings</h2>
+            <div id="admin-bookings-list" class="space-y-4"></div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t mt-auto">
+        <div class="container mx-auto px-4 py-6 text-center text-gray-500">
+            &copy; 2025 Ray-Yul Furniture. All rights reserved.
+        </div>
+    </footer>
+
+    <script>
+        let furnitureMap = {};
+
+        async function fetchAllFurnitureForLookup() {
+            const snapshot = await db.collection('furnitures').get();
+            furnitureMap = {};
+            snapshot.docs.forEach(doc => {
+                furnitureMap[doc.id] = doc.data();
+            });
+        }
+
+        async function fetchUserBookings(userId) {
+            await fetchAllFurnitureForLookup();
+            console.log("Current user UID:", userId); // Debug: show current user's UID
+            const snapshot = await db.collection('bookings').where('userId', '==', userId).orderBy('createdAt', 'desc').get();
+            const bookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            console.log("Bookings fetched for user:", bookings); // Debug: show bookings array
+            renderUserBookings(bookings);
+        }
+
+        function renderUserBookings(bookings) {
+            const list = document.getElementById('user-bookings-list');
+            list.innerHTML = '';
+            bookings.forEach(b => {
+                const furniture = furnitureMap[b.furnitureId] || {};
+                const furnitureName = furniture.name || "Unknown";
+                const furnitureImage = furniture.image ? `<img src="images/${furniture.image}" alt="${furnitureName}" class="h-16 w-16 object-cover rounded mb-2">` : '';
+                const bookingDiv = document.createElement('div');
+                bookingDiv.className = "bg-white rounded shadow p-4 flex items-center space-x-4";
+                bookingDiv.innerHTML = `
+            ${furnitureImage}
+            <div>
+              <div class="font-semibold">Furniture: ${furnitureName}</div>
+              <div>Quantity: ${b.quantity}</div>
+              <div>Status: <span class="font-bold ${b.status === 'approved' ? 'text-green-600' : b.status === 'cancelled' ? 'text-red-600' : 'text-yellow-600'}">${b.status}</span></div>
+              <div class="text-xs text-gray-400">Ordered on: ${b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().toLocaleString() : ''}</div>
+            </div>
+          `;
+                list.appendChild(bookingDiv);
+            });
+        }
+
+        const adminEmails = ["ugyentime88@gmail.com"]; // Add your admin email(s) here
+
+        async function fetchAllBookings() {
+            await fetchAllFurnitureForLookup();
+            const snapshot = await db.collection('bookings').orderBy('createdAt', 'desc').get();
+            const bookings = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+            renderAdminBookings(bookings);
+        }
+
+        function renderAdminBookings(bookings) {
+            const list = document.getElementById('admin-bookings-list');
+            list.innerHTML = '';
+            bookings.forEach(b => {
+                const furniture = furnitureMap[b.furnitureId] || {};
+                const furnitureName = furniture.name || "Unknown";
+                const furnitureImage = furniture.image ? `<img src="images/${furniture.image}" alt="${furnitureName}" class="h-16 w-16 object-cover rounded mb-2">` : '';
+                const bookingDiv = document.createElement('div');
+                bookingDiv.className = "bg-white rounded shadow p-4 flex flex-col md:flex-row md:items-center md:justify-between";
+                bookingDiv.innerHTML = `
+            <div class="flex items-center space-x-4">
+              ${furnitureImage}
+              <div>
+                <div class="font-semibold">Furniture: ${furnitureName}</div>
+                <div>Name: ${b.fullname}</div>
+                <div>Mobile: ${b.mobile}</div>
+                <div>Address: ${b.address}</div>
+                <div>Quantity: ${b.quantity}</div>
+                <div>Status: <span class="font-bold ${b.status === 'approved' ? 'text-green-600' : b.status === 'cancelled' ? 'text-red-600' : 'text-yellow-600'}">${b.status}</span></div>
+                <div class="text-xs text-gray-400">User ID: ${b.userId}</div>
+              </div>
+            </div>
+            <div class="flex space-x-2 mt-4 md:mt-0">
+              <button onclick="approveBooking('${b.id}')" class="bg-green-600 text-white px-3 py-1 rounded hover:bg-green-700" ${b.status === 'approved' ? 'disabled' : ''}>Approve</button>
+              <button onclick="cancelBooking('${b.id}')" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700" ${b.status === 'cancelled' ? 'disabled' : ''}>Cancel</button>
+              <button onclick="removeBooking('${b.id}')" class="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-600">Remove</button>
+            </div>
+          `;
+                list.appendChild(bookingDiv);
+            });
+        }
+
+        // Simple login/logout logic for the button
+        const loginBtn = document.getElementById('login-btn');
+        firebase.auth().onAuthStateChanged(user => {
+            const isAdmin = user && adminEmails.includes(user.email);
+            if (user) {
+                loginBtn.textContent = "Logout";
+                loginBtn.onclick = (e) => {
+                    e.preventDefault();
+                    firebase.auth().signOut();
+                };
+                if (isAdmin) {
+                    document.getElementById('admin-bookings').classList.remove('hidden');
+                    document.getElementById('user-bookings').classList.add('hidden');
+                    fetchAllBookings();
+                } else {
+                    document.getElementById('admin-bookings').classList.add('hidden');
+                    document.getElementById('user-bookings').classList.remove('hidden');
+                    fetchUserBookings(user.uid);
+                }
+            } else {
+                loginBtn.textContent = "Login";
+                loginBtn.onclick = (e) => {
+                    e.preventDefault();
+                    alert("Please login to view your bookings.");
+                };
+                document.getElementById('admin-bookings').classList.add('hidden');
+                document.getElementById('user-bookings').classList.add('hidden');
+            }
+        });
+
+        // Make admin actions global for inline onclick
+        window.approveBooking = async function (id) {
+            await db.collection('bookings').doc(id).update({ status: "approved" });
+            fetchAllBookings();
+        };
+        window.cancelBooking = async function (id) {
+            await db.collection('bookings').doc(id).update({ status: "cancelled" });
+            fetchAllBookings();
+        };
+        window.removeBooking = async function (id) {
+            if (confirm("Remove this booking?")) {
+                await db.collection('bookings').doc(id).delete();
+                fetchAllBookings();
+            }
+        };
+    </script>
+</body>
+
+</html>
