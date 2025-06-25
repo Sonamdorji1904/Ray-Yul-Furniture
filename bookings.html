@@ -49,8 +49,10 @@
 
     <main class="flex-1">
         <!-- Info Banner for Users -->
-        <div id="booking-info-banner" class="container mx-auto px-4 py-4 mb-4 bg-indigo-50 border-l-4 border-indigo-400 text-indigo-800 rounded">
-            <span class="font-semibold">Note:</span> Please log in to view your orders and pre-orders. Once logged in, all your bookings will appear below.
+        <div id="booking-info-banner"
+            class="container mx-auto px-4 py-4 mb-4 bg-indigo-50 border-l-4 border-indigo-400 text-indigo-800 rounded">
+            <span class="font-semibold">Note:</span> Please log in to view your orders and pre-orders. Once logged in,
+            all your bookings will appear below.
         </div>
         <!-- User Bookings Section -->
         <section id="user-bookings" class="container mx-auto px-4 py-10 hidden">
@@ -77,8 +79,10 @@
         <div class="bg-white rounded-lg p-6 w-full max-w-sm">
             <h3 class="text-xl font-bold mb-4" id="auth-title">Login</h3>
             <form id="auth-form" class="space-y-4">
-                <input type="email" id="auth-email" placeholder="Email" class="w-full border rounded px-3 py-2" required>
-                <input type="password" id="auth-password" placeholder="Password" class="w-full border rounded px-3 py-2" required>
+                <input type="email" id="auth-email" placeholder="Email" class="w-full border rounded px-3 py-2"
+                    required>
+                <input type="password" id="auth-password" placeholder="Password" class="w-full border rounded px-3 py-2"
+                    required>
                 <div class="flex justify-between">
                     <button type="submit" id="auth-submit"
                         class="px-4 py-2 rounded bg-indigo-600 text-white hover:bg-indigo-700">Login</button>
@@ -179,14 +183,35 @@
         const loginBtn = document.getElementById('login-btn');
         const authModal = document.getElementById('auth-modal');
         const closeAuth = document.getElementById('close-auth');
+        const forgotPasswordBtn = document.getElementById('forgot-password');
         const toggleAuth = document.getElementById('toggle-auth');
         const authTitle = document.getElementById('auth-title');
-        const authForm = document.getElementById('auth-form');
-        const authError = document.getElementById('auth-error');
         const authSubmit = document.getElementById('auth-submit');
-        const forgotPasswordBtn = document.getElementById('forgot-password');
-
+        const authError = document.getElementById('auth-error');
         let isLogin = true;
+
+        // Only one toggleAuth handler
+        toggleAuth.onclick = () => {
+            isLogin = !isLogin;
+            authTitle.textContent = isLogin ? "Login" : "Sign Up";
+            toggleAuth.textContent = isLogin ? "Sign Up" : "Login";
+            authSubmit.textContent = isLogin ? "Login" : "Sign Up";
+            authError.textContent = "";
+            // Show forgot password only in Login mode
+            forgotPasswordBtn.classList.toggle('hidden', !isLogin);
+        };
+
+        // Always show forgot password in Login mode on modal open
+        loginBtn.onclick = (e) => {
+            e.preventDefault();
+            authModal.classList.remove('hidden');
+            isLogin = true;
+            authTitle.textContent = "Login";
+            toggleAuth.textContent = "Sign Up";
+            authSubmit.textContent = "Login";
+            authError.textContent = "";
+            forgotPasswordBtn.classList.remove('hidden');
+        };
 
         firebase.auth().onAuthStateChanged(user => {
             if (user) {
@@ -220,6 +245,8 @@
             toggleAuth.textContent = isLogin ? "Sign Up" : "Login";
             authSubmit.textContent = isLogin ? "Login" : "Sign Up";
             authError.textContent = "";
+            // Show forgot password only in Login mode
+            forgotPasswordBtn.classList.toggle('hidden', !isLogin);
         };
 
         authForm.onsubmit = async (e) => {

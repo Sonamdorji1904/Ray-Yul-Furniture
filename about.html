@@ -179,7 +179,6 @@
         const authError = document.getElementById('auth-error');
         const authSubmit = document.getElementById('auth-submit');
         const forgotPasswordBtn = document.getElementById('forgot-password');
-
         let isLogin = true;
 
         firebase.auth().onAuthStateChanged(user => {
@@ -202,6 +201,7 @@
                     toggleAuth.textContent = "Sign Up";
                     authSubmit.textContent = "Login";
                     authError.textContent = "";
+                    forgotPasswordBtn.classList.remove('hidden');
                 };
             }
         });
@@ -214,6 +214,8 @@
             toggleAuth.textContent = isLogin ? "Sign Up" : "Login";
             authSubmit.textContent = isLogin ? "Login" : "Sign Up";
             authError.textContent = "";
+            // Show forgot password only in Login mode
+            forgotPasswordBtn.classList.toggle('hidden', !isLogin);
         };
 
         authForm.onsubmit = async (e) => {

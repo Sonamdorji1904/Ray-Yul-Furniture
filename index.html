@@ -372,6 +372,20 @@
             toggleAuth.textContent = isLogin ? "Sign Up" : "Login";
             authSubmit.textContent = isLogin ? "Login" : "Sign Up";
             authError.textContent = "";
+            // Show forgot password only in Login mode
+            forgotPasswordBtn.classList.toggle('hidden', !isLogin);
+        };
+
+        // Always show forgot password in Login mode on modal open
+        loginBtn.onclick = (e) => {
+            e.preventDefault();
+            authModal.classList.remove('hidden');
+            isLogin = true;
+            authTitle.textContent = "Login";
+            toggleAuth.textContent = "Sign Up";
+            authSubmit.textContent = "Login";
+            authError.textContent = "";
+            forgotPasswordBtn.classList.remove('hidden');
         };
 
         authForm.onsubmit = async (e) => {
