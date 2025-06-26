@@ -11,109 +11,185 @@
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
     <!-- Header -->
     <header class="bg-white shadow">
-        <nav class="container mx-auto flex items-center justify-between py-4 px-4">
-            <div class="flex items-center space-x-3">
-                <img src="images/logo.png" alt="Ray-Yul Logo" class="h-20 w-20 object-contain">
-                <!-- Replace 'logo.png' with your logo file path -->
-                <h1 class="text-2xl font-bold text-indigo-700">Ray-Yul Furniture</h1>
+        <nav class="container mx-auto flex items-center justify-between py-2 px-2 sm:py-4 sm:px-4 relative">
+            <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                <img src="images/logo.png" alt="Ray-Yul Logo" class="h-8 w-8 sm:h-14 sm:w-14 object-contain">
+                <h1 class="text-sm sm:text-xl md:text-2xl font-bold text-indigo-700 whitespace-nowrap">Ray-Yul Furniture
+                </h1>
             </div>
-            <ul class="flex space-x-6">
-                <li><a href="index.html" class="hover:text-indigo-600">Home</a></li>
-                <li><a href="about.html" class="hover:text-indigo-600">About Us</a></li>
-                <li><a href="bookings.html" class="hover:text-indigo-600">Bookings</a></li>
-                <li><a href="#" id="login-btn"
-                        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Login</a></li>
-            </ul>
+            <!-- Hamburger Icon (mobile only) -->
+            <button id="nav-toggle"
+                class="sm:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <svg class="w-7 h-7 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <!-- Nav Links -->
+            <div id="nav-menu"
+                class="hidden sm:block absolute sm:static top-full left-0 w-full sm:w-auto bg-white sm:bg-transparent z-50 shadow sm:shadow-none">
+                <ul
+                    class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6 text-base py-2 sm:py-0">
+                    <li><a href="index.html"
+                            class="hover:text-indigo-600 font-semibold block px-4 py-2 sm:p-0">Home</a></li>
+                    <li><a href="about.html"
+                            class="hover:text-indigo-600 font-semibold block px-4 py-2 sm:p-0">About Us</a></li>
+                    <li><a href="bookings.html"
+                            class="hover:text-indigo-600 font-semibold block px-4 py-2 sm:p-0">Bookings</a></li>
+                    <li>
+                        <a href="#" id="login-btn"
+                            class="bg-indigo-600 text-white font-semibold px-4 py-2 rounded hover:bg-indigo-700 transition block text-center w-full md:w-auto">
+                            Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </header>
 
     <!-- Main Content Placeholder -->
     <main class="flex-1">
-        <section class="container mx-auto px-4 py-12 max-w-3xl">
-            <h2 class="text-3xl font-extrabold mb-4 flex items-center gap-2">
-                Ray-Yul Furniture: Empowering Communities. Redefining Craftsmanship.
-            </h2>
-            <p class="mb-6">
-                <span class="font-semibold">Ray-Yul Furniture</span> is a forward-thinking Bhutanese enterprise
-                committed to delivering durable, high-quality metal and wooden furniture that reflects both modern
-                functionality and timeless craftsmanship. Founded in <span class="font-semibold">2022</span> and
-                headquartered in <span class="font-semibold">Hurungpam, Mongar</span>, Ray-Yul Furniture is more than a
-                manufacturing business — it is a mission-driven enterprise that blends entrepreneurship, skill
-                development, and community empowerment.
-            </p>
+        <section class="container mx-auto px-4 py-12 max-w-4xl space-y-16">
 
-            <h3 class="text-2xl font-bold mt-8 mb-2">Our Origin Story</h3>
-            <p class="mb-6">
-                The foundation of Ray-Yul Furniture is rooted in resilience and transformation. <span
-                    class="font-semibold">Sangay Chophel</span>, our visionary founder, established the company after
-                overcoming significant personal and academic challenges. A graduate of <span
-                    class="font-semibold">Nangkor Central School</span>, Sangay redirected his life journey through
-                technical training in welding at <span class="font-semibold">Jigme Wangchuk Power Training
-                    Institute</span>, and furniture-making courses at <span class="font-semibold">Rangjung</span>.
-            </p>
-            <p class="mb-6">
-                He further equipped himself with managerial expertise through entrepreneurship programs at <span
-                    class="font-semibold">Rangjung Technical Training Institute</span> and the <span
-                    class="font-semibold">ITEC program in India</span>, setting the stage for a business built on
-                excellence and purpose.
-            </p>
-
-            <h3 class="text-2xl font-bold mt-8 mb-2">What We Do</h3>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="font-semibold">Customized wooden and metal furniture</span></li>
-                <li><span class="font-semibold">Residential and office furnishings</span></li>
-                <li><span class="font-semibold">Durable, long-lasting products with a warranty of service</span></li>
-                <li><span class="font-semibold">Free repair and support for furniture purchased from us</span></li>
-            </ul>
-            <p class="mb-6">
-                Our enterprise is defined by innovation, craftsmanship, and service excellence — ensuring that every
-                product meets the needs of modern customers while maintaining high durability standards.
-            </p>
-
-            <h3 class="text-2xl font-bold mt-8 mb-2">Our Mission</h3>
-            <p class="mb-6">
-                To <span class="font-semibold">empower individuals and communities</span> through job creation, skill
-                development, and the delivery of affordable, premium-quality furniture that enhances both lifestyle and
-                livelihoods.
-            </p>
-
-            <h3 class="text-2xl font-bold mt-8 mb-2">Our Vision</h3>
-            <p class="mb-6">
-                To become Bhutan’s <span class="font-semibold">leading socially-responsible furniture enterprise</span>,
-                recognized for craftsmanship, customer satisfaction, and its contributions to community and economic
-                development.
-            </p>
-
-            <h3 class="text-2xl font-bold mt-8 mb-2">Our Founder’s Perspective</h3>
-            <div class="flex flex-col md:flex-row items-center mb-6 gap-6">
-                <!-- CEO Image Placeholder -->
-                <img src="images/CEO.jpg" alt="Sangay Chophel, Founder & CEO"
-                    class="w-32 h-32 rounded-full object-cover border-4 border-indigo-200 shadow-md">
-                <blockquote class="border-l-4 border-indigo-400 pl-4 italic text-gray-700">
-                    “Entrepreneurship is about being a problem lover and solver. At Ray-Yul Furniture, we measure
-                    success not only through profits but by the value we bring to the lives of others through service,
-                    sustainability, and social impact.”<br>
-                    <span class="font-semibold block mt-2">— Sangay Chophel, Founder & CEO</span>
-                </blockquote>
+            <!-- Hero Section -->
+            <div class="flex flex-col md:flex-row items-center md:space-x-10 space-y-6 md:space-y-0">
+                <div class="flex-1">
+                    <h2 class="text-3xl font-bold mb-4 flex items-center gap-2 text-indigo-700">
+                        Ray-Yul Furniture: Empowering Communities. Redefining Craftsmanship.
+                    </h2>
+                    <p class="mb-6 text-gray-700 leading-relaxed">
+                        <span class="font-semibold">Ray-Yul Furniture</span> is a forward-thinking Bhutanese enterprise
+                        committed to delivering durable, high-quality metal and wooden furniture that reflects both modern
+                        functionality and timeless craftsmanship. Founded in <span class="font-semibold">2022</span> and
+                        headquartered in <span class="font-semibold">Hurungpam, Mongar</span>, Ray-Yul Furniture is more than a
+                        manufacturing business — it is a mission-driven enterprise that blends entrepreneurship, skill
+                        development, and community empowerment.
+                    </p>
+                </div>
+                <img src="images/logo.png" alt="Ray-Yul Furniture Showroom"
+                    class="w-full md:w-1/3 rounded-full shadow-lg border-4 border-indigo-200 shadow-md">
             </div>
 
-            <h3 class="text-2xl font-bold mt-8 mb-2">Our Achievements</h3>
-            <p>Despite the challenges of launching an enterprise in a competitive market, Ray-Yul Furniture has:</p><br>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li>Secured support from the <span class="font-semibold">DHI BIZAP Fund</span></li>
-                <li>Established a growing customer base across eastern Bhutan</li>
-                <li>Created employment opportunities for local youth</li>
-                <li>Earned trust through transparent service and lasting products</li>
-            </ul>
+            <!-- Origin Story -->
+            <div class="flex flex-col md:flex-row-reverse items-center md:space-x-reverse md:space-x-10 space-y-6 md:space-y-0">
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 text-indigo-700">Our Origin Story</h3>
+                    <p class="mb-4 text-gray-700 leading-relaxed">
+                        The foundation of Ray-Yul Furniture is rooted in resilience and transformation. <span
+                            class="font-semibold">Sangay Chophel</span>, our visionary founder, established the company after
+                        overcoming significant personal and academic challenges. A graduate of <span
+                            class="font-semibold">Nangkor Central School</span>, Sangay redirected his life journey through
+                        technical training in welding at <span class="font-semibold">Jigme Wangchuk Power Training
+                            Institute</span>, and furniture-making courses at <span class="font-semibold">Rangjung</span>.
+                    </p>
+                    <p class="mb-4 text-gray-700 leading-relaxed">
+                        He further equipped himself with managerial expertise through entrepreneurship programs at <span
+                            class="font-semibold">Rangjung Technical Training Institute</span> and the <span
+                            class="font-semibold">ITEC program in India</span>, setting the stage for a business built on
+                        excellence and purpose.
+                    </p>
+                </div>
+                <img src="images/origin.jpg" alt="Our Origin Story"
+                    class="w-50 h-56 rounded-full object-cover border-4 border-indigo-200 shadow-md">
+            </div>
 
-            <h3 class="text-2xl font-bold mt-8 mb-2">Our Commitment</h3>
-            <p>Ray-Yul Furniture stands committed to:</p><br>
-            <ul class="list-disc pl-6 mb-6 space-y-2">
-                <li><span class="font-semibold">Job creation and youth empowerment</span></li>
-                <li><span class="font-semibold">Providing exceptional after-sales support</span></li>
-                <li><span class="font-semibold">Sustainably growing with and for the Bhutanese people</span></li>
-            </ul>
+            <!-- What We Do -->
+            <div class="flex flex-col md:flex-row items-center md:space-x-10 space-y-6 md:space-y-0">
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 text-indigo-700">What We Do</h3>
+                    <ul class="list-disc pl-6 mb-4 space-y-2 text-gray-700">
+                        <li><span class="font-semibold">Customized wooden and metal furniture</span></li>
+                        <li><span class="font-semibold">Residential and office furnishings</span></li>
+                        <li><span class="font-semibold">Durable, long-lasting products with a warranty of service</span></li>
+                        <li><span class="font-semibold">Free repair and support for furniture purchased from us</span></li>
+                    </ul>
+                    <p class="mb-4 text-gray-700 leading-relaxed">
+                        Our enterprise is defined by innovation, craftsmanship, and service excellence, <br>ensuring that every
+                        product meets the needs of modern customers while maintaining <br> high durability standards.
+                    </p>
+                </div>
 
+            </div>
+
+            <!-- Mission & Vision -->
+            <div class="flex flex-col md:flex-row-reverse items-center md:space-x-reverse md:space-x-10 space-y-6 md:space-y-0">
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 text-indigo-700">Our Mission</h3>
+                    <p class="mb-4 text-gray-700 leading-relaxed">
+                        To <span class="font-semibold">empower individuals and communities</span> through job creation, skill
+                        development, and the delivery of affordable, premium-quality furniture that enhances both lifestyle and
+                        livelihoods.
+                    </p>
+                    <h3 class="text-2xl font-bold mb-2 text-indigo-700">Our Vision</h3>
+                    <p class="mb-4 text-gray-700 leading-relaxed">
+                        To become Bhutan’s <span class="font-semibold">leading socially-responsible furniture enterprise</span>,
+                        recognized for craftsmanship, customer satisfaction, and its contributions to community and economic
+                        development.
+                    </p>
+                </div>
+
+            </div>
+
+            <!-- CEO Section -->
+            <div class="flex flex-col md:flex-row items-center md:space-x-10 space-y-6 md:space-y-0 bg-indigo-50 rounded-lg p-6 shadow">
+                <img src="images/CEO.jpg" alt="Sangay Chophel, Founder & CEO"
+                    class="w-40 h-42 rounded-full object-cover border-4 border-indigo-200 shadow-md">
+                <div>
+                    <h3 class="text-xl font-bold text-indigo-800 mb-1">Sangay Chophel</h3>
+                    <p class="text-indigo-600 font-semibold mb-2">Founder & CEO</p>
+                    <blockquote class="border-l-4 border-indigo-400 pl-4 italic text-gray-700">
+                        “Entrepreneurship is about being a problem lover and solver. At Ray-Yul Furniture, we measure
+                        success not only through profits but by the value we bring to the lives of others through service,
+                        sustainability, and social impact.”<br>
+                        <span class="font-semibold block mt-2">— Sangay Chophel, Founder & CEO</span>
+                    </blockquote>
+                </div>
+            </div>
+
+            <!-- Achievements -->
+            <div class="flex flex-col md:flex-row-reverse items-center md:space-x-reverse md:space-x-10 space-y-6 md:space-y-0">
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 text-indigo-700">Our Achievements</h3>
+                    <p class="mb-2 text-gray-700">Despite the challenges of launching an enterprise in a competitive market, Ray-Yul Furniture has:</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2 text-gray-700">
+                        <li>Secured support from the <span class="font-semibold">DHI BIZAP Fund</span></li>
+                        <li>Established a growing customer base across eastern Bhutan</li>
+                        <li>Created employment opportunities for local youth</li>
+                        <li>Earned trust through transparent service and lasting products</li>
+                    </ul>
+                </div>
+                <img src="images/achievements.png" alt="Our Achievements" class="w-50 h-52 rounded-full object-cover border-4 border-indigo-200 shadow-md">
+            </div>
+
+            <!-- Commitment -->
+            <div class="flex flex-col md:flex-row items-center md:space-x-10 space-y-6 md:space-y-0">
+                <div class="flex-1">
+                    <h3 class="text-2xl font-bold mb-2 text-indigo-700">Our Commitment</h3>
+                    <p class="mb-2 text-gray-700">Ray-Yul Furniture stands committed to:</p>
+                    <ul class="list-disc pl-6 mb-4 space-y-2 text-gray-700">
+                        <li><span class="font-semibold">Job creation and youth empowerment</span></li>
+                        <li><span class="font-semibold">Providing exceptional after-sales support</span></li>
+                        <li><span class="font-semibold">Sustainably growing with and for the Bhutanese people</span></li>
+                    </ul>
+                </div>
+
+            </div>
+
+            <!-- Manager Section -->
+            <div class="flex flex-col md:flex-row-reverse items-center md:space-x-reverse md:space-x-10 space-y-6 md:space-y-0 bg-indigo-50 rounded-lg p-6 shadow">
+                <img src="images/manager.jpg" alt="Sangay Dorji, Manager"
+                    class="w-40 h-42 rounded-full object-cover border-4 border-indigo-200 shadow-md">
+                <div>
+                    <h3 class="text-xl font-bold text-indigo-800 mb-1">Sangay Dorji</h3>
+                    <p class="text-indigo-600 font-semibold mb-2">Manager</p>
+                    <p class="text-gray-700">
+                        From Khar, Pema Gatshel, <span class="font-semibold">Sangay Dorji</span> holds a <span class="font-semibold">BCom (Accounting)</span> degree from <span class="font-semibold">Gedu College of Business Studies</span>.
+                        His expertise in management and finance ensures smooth operations and excellent customer service at <span class="font-semibold">Ray-Yul Furniture</span>.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Contact Section -->
             <div class="mt-10 border-t pt-6 text-gray-700 space-y-2">
                 <div><span class="font-semibold">📍 Head Office:</span> Phuentsholing, Chukha</div>
                 <div><span class="font-semibold">📧 Email:</span> email address</div>
@@ -251,6 +327,20 @@
                 authError.classList.add("text-red-500");
             }
         };
+
+        // Navigation toggle script for mobile
+        document.getElementById('nav-toggle').onclick = function() {
+            const menu = document.getElementById('nav-menu');
+            menu.classList.toggle('hidden');
+        };
+        // Optional: Hide menu when clicking a link (mobile)
+        document.querySelectorAll('#nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if(window.innerWidth < 640) {
+                    document.getElementById('nav-menu').classList.add('hidden');
+                }
+            });
+        });
     </script>
 </body>
 

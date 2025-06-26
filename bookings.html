@@ -29,11 +29,71 @@
 
         // Make admin actions global for inline onclick
         window.approveBooking = async function (id) {
-            await db.collection('bookings').doc(id).update({ status: "approved" });
+            // Get the booking document
+            const bookingRef = db.collection('bookings').doc(id);
+            const bookingSnap = await bookingRef.get();
+            if (!bookingSnap.exists) return;
+            const booking = bookingSnap.data();
+
+            // Only proceed if not already approved
+            if (booking.status === "approved") {
+                alert("Already approved.");
+                return;
+            }
+
+            // Get the furniture document
+            const furnitureRef = db.collection('furnitures').doc(booking.furnitureId);
+            const furnitureSnap = await furnitureRef.get();
+            if (!furnitureSnap.exists) {
+                alert("Furniture not found.");
+                return;
+            }
+            const furniture = furnitureSnap.data();
+
+            // Check if enough stock is available
+            const newStock = (parseInt(furniture.stock, 10) || 0) - (parseInt(booking.quantity, 10) || 0);
+            if (newStock < 0) {
+                alert("Not enough stock to approve this order.");
+                return;
+            }
+
+            // Update both booking status and furniture stock in a batch
+            const batch = db.batch();
+            batch.update(bookingRef, { status: "approved" });
+            batch.update(furnitureRef, { stock: newStock });
+            await batch.commit();
+
             fetchAllBookings();
         };
         window.cancelBooking = async function (id) {
-            await db.collection('bookings').doc(id).update({ status: "cancelled" });
+            // Get the booking document
+            const bookingRef = db.collection('bookings').doc(id);
+            const bookingSnap = await bookingRef.get();
+            if (!bookingSnap.exists) return;
+            const booking = bookingSnap.data();
+
+            // Only restore stock if booking was approved
+            if (booking.status === "approved") {
+                // Get the furniture document
+                const furnitureRef = db.collection('furnitures').doc(booking.furnitureId);
+                const furnitureSnap = await furnitureRef.get();
+                if (!furnitureSnap.exists) {
+                    alert("Furniture not found.");
+                    return;
+                }
+                const furniture = furnitureSnap.data();
+                const restoredStock = (parseInt(furniture.stock, 10) || 0) + (parseInt(booking.quantity, 10) || 0);
+
+                // Update both booking status and furniture stock in a batch
+                const batch = db.batch();
+                batch.update(bookingRef, { status: "cancelled" });
+                batch.update(furnitureRef, { stock: restoredStock });
+                await batch.commit();
+            } else {
+                // Just update status if not approved
+                await bookingRef.update({ status: "cancelled" });
+            }
+
             fetchAllBookings();
         };
         window.removeBooking = async function (id) {
@@ -48,18 +108,37 @@
 <body class="bg-gray-50 text-gray-900 min-h-screen flex flex-col">
     <!-- Header -->
     <header class="bg-white shadow">
-        <nav class="container mx-auto flex items-center justify-between py-4 px-4">
-            <div class="flex items-center space-x-3">
-                <img src="images/logo.png" alt="Ray-Yul Logo" class="h-20 w-20 object-contain">
-                <h1 class="text-2xl font-bold text-indigo-700">Ray-Yul Furniture</h1>
+        <nav class="container mx-auto flex items-center justify-between py-2 px-2 sm:py-4 sm:px-4 relative">
+            <div class="flex items-center space-x-2 sm:space-x-3 min-w-0">
+                <img src="images/logo.png" alt="Ray-Yul Logo" class="h-8 w-8 sm:h-14 sm:w-14 object-contain">
+                <h1 class="text-sm sm:text-xl md:text-2xl font-bold text-indigo-700 whitespace-nowrap">Ray-Yul Furniture
+                </h1>
             </div>
-            <ul class="flex space-x-6">
-                <li><a href="index.html" class="hover:text-indigo-600">Home</a></li>
-                <li><a href="about.html" class="hover:text-indigo-600">About Us</a></li>
-                <li><a href="bookings.html" class="hover:text-indigo-600">Bookings</a></li>
-                <li><a href="#" id="login-btn"
-                        class="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Login</a></li>
-            </ul>
+            <!-- Hamburger Icon (mobile only) -->
+            <button id="nav-toggle"
+                class="sm:hidden p-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                <svg class="w-7 h-7 text-indigo-700" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+            </button>
+            <!-- Nav Links -->
+            <div id="nav-menu"
+                class="hidden sm:block absolute sm:static top-full left-0 w-full sm:w-auto bg-white sm:bg-transparent z-50 shadow sm:shadow-none">
+                <ul class="flex flex-col sm:flex-row items-center space-y-2 sm:space-y-0 sm:space-x-6 text-base py-2 sm:py-0">
+                    <li><a href="index.html"
+                            class="hover:text-indigo-600 font-semibold block px-4 py-2 sm:p-0">Home</a></li>
+                    <li><a href="about.html"
+                            class="hover:text-indigo-600 font-semibold block px-4 py-2 sm:p-0">About Us</a></li>
+                    <li><a href="bookings.html"
+                            class="hover:text-indigo-600 font-semibold block px-4 py-2 sm:p-0">Bookings</a></li>
+                    <li>
+                        <a href="#" id="login-btn"
+                            class="bg-indigo-600 text-white font-semibold px-4 py-2 rounded hover:bg-indigo-700 transition block text-center w-full md:w-auto">
+                            Login
+                        </a>
+                    </li>
+                </ul>
+            </div>
         </nav>
     </header>
 
@@ -146,10 +225,12 @@
             <div>
               <div class="font-semibold">Furniture: ${furnitureName}</div>
               <div>Quantity: ${b.quantity}</div>
+              <div>Advance Payment: <span class="font-semibold">${b.advanceAmount ? 'Nu.' + b.advanceAmount : '-'}</span></div>
+              <div>Journal No.: <span class="font-semibold">${b.journalNumber || '-'}</span></div>
               <div>Status: <span class="font-bold ${b.status === 'approved' ? 'text-green-600' : b.status === 'cancelled' ? 'text-red-600' : 'text-yellow-600'}">${b.status}</span></div>
               <div class="text-xs text-gray-400">Ordered on: ${b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().toLocaleString() : ''}</div>
             </div>
-          `;
+        `;
                 list.appendChild(bookingDiv);
             });
         }
@@ -181,7 +262,10 @@
                 <div>Mobile: ${b.mobile}</div>
                 <div>Address: ${b.address}</div>
                 <div>Quantity: ${b.quantity}</div>
+                <div>Advance Payment: <span class="font-semibold">${b.advanceAmount ? 'Nu.' + b.advanceAmount : '-'}</span></div>
+                <div>Journal No.: <span class="font-semibold">${b.journalNumber || '-'}</span></div>
                 <div>Status: <span class="font-bold ${b.status === 'approved' ? 'text-green-600' : b.status === 'cancelled' ? 'text-red-600' : 'text-yellow-600'}">${b.status}</span></div>
+                <div class="text-xs text-gray-400">Ordered on: ${b.createdAt && b.createdAt.toDate ? b.createdAt.toDate().toLocaleString() : ''}</div>
                 <div class="text-xs text-gray-400">User ID: ${b.userId}</div>
               </div>
             </div>
@@ -190,7 +274,7 @@
               <button onclick="cancelBooking('${b.id}')" class="bg-red-600 text-white px-3 py-1 rounded hover:bg-red-700" ${b.status === 'cancelled' ? 'disabled' : ''}>Cancel</button>
               <button onclick="removeBooking('${b.id}')" class="bg-gray-400 text-white px-3 py-1 rounded hover:bg-gray-600">Remove</button>
             </div>
-          `;
+        `;
                 list.appendChild(bookingDiv);
             });
         }
@@ -205,6 +289,9 @@
         const authSubmit = document.getElementById('auth-submit');
         const authError = document.getElementById('auth-error');
         let isLogin = true;
+
+        // Fix: Define authForm so it is available
+        const authForm = document.getElementById('auth-form');
 
         // Only one toggleAuth handler
         toggleAuth.onclick = () => {
@@ -319,21 +406,19 @@
             }
         };
 
-        // Make admin actions global for inline onclick
-        window.approveBooking = async function (id) {
-            await db.collection('bookings').doc(id).update({ status: "approved" });
-            fetchAllBookings();
+        // Hamburger menu toggle
+        document.getElementById('nav-toggle').onclick = function() {
+            const menu = document.getElementById('nav-menu');
+            menu.classList.toggle('hidden');
         };
-        window.cancelBooking = async function (id) {
-            await db.collection('bookings').doc(id).update({ status: "cancelled" });
-            fetchAllBookings();
-        };
-        window.removeBooking = async function (id) {
-            if (confirm("Remove this booking?")) {
-                await db.collection('bookings').doc(id).delete();
-                fetchAllBookings();
-            }
-        };
+        // Optional: Hide menu when clicking a link (mobile)
+        document.querySelectorAll('#nav-menu a').forEach(link => {
+            link.addEventListener('click', () => {
+                if(window.innerWidth < 640) {
+                    document.getElementById('nav-menu').classList.add('hidden');
+                }
+            });
+        });
     </script>
 </body>
 
